@@ -1,0 +1,8 @@
+schema = 1
+id = "better-sessions"
+name = "Better sessions"
+version = "0.1.0"
+description = "A vertical session sidebar, the current session's tabs in the top bar, and a root folder per session that its new tabs start in"
+styles = ["better-sessions.css"]
+window = "window.luau"
+host = "host.luau"

@@ -1,0 +1,77 @@
+/* Put the widget bar (holding the better-sessions tab widgets) inside Tern's top bar, right after its
+   New tab (+) button, instead of along the window's foot. Tern's CSS has no anchor positioning,
+   so the + button is pinned in place instead: the session button before it gets a fixed width
+   (its name truncates; the side list shows full names), which fixes where + ends.
+
+   Top bar row (vertical tabs, tiles layout), left to right from the side list's edge:
+   12px pad · 30px account · 8px · session button · 10px · 28px + button.  */
+
+html.tn-widgets.tabs-v {
+	--st-session-w: 120px;
+	--st-left: calc(12px + 30px + 8px + var(--st-session-w) + 10px + 28px + 8px);
+	--st-right: 232px; /* clears the Files/Split/Find/Run/Settings group and the inbox */
+}
+
+html.tn-widgets.tabs-v #tabbar .tn-session-tab {
+	width: var(--st-session-w);
+	min-width: var(--st-session-w);
+	max-width: var(--st-session-w);
+	overflow: hidden;
+
+	.nm {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+}
+
+html.tn-widgets.tabs-v #widgetbar {
+	top: calc((var(--tn-bar, 40px) - 30px) / 2);
+	bottom: auto;
+	left: calc(var(--vt-room) * var(--tn-zoom, 1) + var(--st-left));
+	right: var(--st-right);
+	height: 30px;
+	padding: 0;
+	overflow: hidden;
+}
+
+/* The + button's block picker (.tb-blocks) slides out to the right over this strip:
+   fade the tabs away while it is open. */
+html.tn-widgets.tabs-v #widgetbar {
+	transition: opacity 0.14s var(--ease);
+}
+
+html.tn-widgets.tabs-v:has(#tabbar .tb-add.open) #widgetbar {
+	opacity: 0;
+	pointer-events: none;
+
+	.wg-row {
+		pointer-events: none;
+	}
+}
+
+/* The bar no longer sits at the foot: give its height back to the panes. */
+html.tn-widgets.tabs-v .tn-stage {
+	margin-bottom: calc(-26px * var(--tn-zoom, 1) - var(--tn-wg-lift, 0px));
+}
+
+/* Tab look: the current tab reads as selected, the rest stay quiet until hovered. */
+html.tn-widgets #widgetbar .wg-row {
+	gap: 2px;
+}
+
+html.tn-widgets #widgetbar [data-tone] {
+	padding: 4px 10px;
+	border-radius: 8px;
+	font: 12.5px/1.2 var(--sans);
+}
+
+html.tn-widgets #widgetbar [data-tone='accent'] {
+	color: var(--t1);
+	background: var(--l2);
+}
+
+html.tn-widgets #widgetbar [data-tone='muted']:hover {
+	color: var(--t2);
+	background: var(--l1);
+}
