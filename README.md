@@ -6,6 +6,8 @@ A [Tern](https://stencil.so/tern) plugin that makes sessions the way you organis
 - **Top tab bar**: the current session's tabs in Tern's top bar, beside the New tab (+) button. Click a tab to switch to it.
 - **Session roots**: give a session a folder, and every new tab, agent block and shell block you open in it starts there. Splits (⌘D) still start in the focused block's folder.
 
+![Tern with the better-sessions sidebar and top tab bar](docs/screenshot.png)
+
 Tested with Tern 0.9.26 on macOS.
 
 ## Install
