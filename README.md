@@ -1,10 +1,12 @@
 # better-sessions
 
-A [Tern](https://stencil.so) plugin that makes sessions the way you organise work:
+A [Tern](https://stencil.so/tern) plugin that makes sessions the way you organise work:
 
-- **Left sidebar**: sessions listed vertically down the left side.
+- **Left sidebar**: sessions listed vertically down the left side. A button in the top bar keeps it visible or hides it until you hover the left edge, and palette commands change its width.
 - **Top tab bar**: the current session's tabs in Tern's top bar, beside the New tab (+) button. Click a tab to switch to it.
 - **Session roots**: give a session a folder, and every new tab, agent block and shell block you open in it starts there. Splits (⌘D) still start in the focused block's folder.
+
+Tested with Tern 0.9.26 on macOS.
 
 ## Install
 
@@ -12,13 +14,11 @@ A [Tern](https://stencil.so) plugin that makes sessions the way you organise wor
 tern plugin install github.com/aurbano/better-sessions
 ```
 
-Or, to work on it from a checkout:
+Or paste `github.com/aurbano/better-sessions` into the install field in Tern's plugin settings.
 
-```sh
-tern plugin link ~/dev/better-sessions
-```
+The first time it loads, the plugin switches tabs to vertical and puts the sidebar button and its tab widgets first in the widget bar. It keeps your other widgets, and leaves Tern's sidebar auto-hide setting as you have it.
 
-The first time it loads, the plugin switches tabs to vertical and puts its tab widgets first in the widget bar. It keeps your other widgets, and leaves Tern's sidebar auto-hide setting as you have it.
+To uninstall, run `tern plugin remove better-sessions`. Your tab and widget settings stay as they are; remove the `better-sessions/*` entries from `widgets` in `settings.json` if you want them gone too.
 
 ## Commands
 
@@ -29,7 +29,14 @@ All of these are in the command palette, under "Better sessions":
 | Set session root… | Asks for the current session's root folder, pre-filled with the focused block's folder. |
 | Clear session root | New tabs in the current session go back to Tern's default folder. |
 | New session at folder… | Creates a session named after a folder, with that folder as its root. |
+| Show or hide sidebar (toggle auto-hide) | Same as the sidebar button: turns Tern's `tabs_autohide` setting on or off. |
+| Widen sidebar / Narrow sidebar | Changes the sidebar width by 24px, between 160px and 480px. |
+| Set sidebar width… | Sets an exact width in px; leave it empty to go back to Tern's default (236px). |
 | Apply sidebar layout (vertical sessions, tabs on top) | Applies the sidebar and tab bar settings again. |
+
+Commands have no default shortcuts; bind any of them in Tern's keyboard settings (`plugin.better-sessions.<id>`, for example `plugin.better-sessions.toggle_sidebar`).
+
+The sidebar width can't be dragged: Tern lets plugins style its sidebar but not add a drag handle to it. The width is stored per machine and applies to every window.
 
 ## How session roots work
 
@@ -45,4 +52,14 @@ Limitations:
 
 ## Development
 
-`tern plugin types .` writes `tern.d.luau` (gitignored) for luau-lsp. With the plugin linked, Tern reloads it whenever a file in this directory changes.
+```sh
+git clone https://github.com/aurbano/better-sessions
+tern plugin link ./better-sessions
+tern plugin types ./better-sessions
+```
+
+`tern plugin link` uses the checkout in place, and Tern reloads the plugin whenever a file in it changes. `tern plugin types` writes `tern.d.luau` (gitignored) for luau-lsp.
+
+## License
+
+[MIT](LICENSE)

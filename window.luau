@@ -85,10 +85,15 @@ for i = 1, MAX_TABS do
 end
 
 -- `window_start` fires once per window, not on a plugin reload, so the refresh loop starts at load;
--- timers hand the window context a fresh `cx`.
+-- timers hand the window context a fresh `cx`. Later sections add to `on_tick`.
+local on_tick: { (cx: any) -> () } = { snapshot }
 local pending: any = nil
 local function tick(cx)
-	snapshot(cx)
+	if cx then
+		for _, fn in on_tick do
+			fn(cx)
+		end
+	end
 	pending = tern.timer(REFRESH_MS, tick)
 end
 pending = tern.timer(0, tick)
@@ -239,14 +244,17 @@ tern.on("session_ended", function(ev: any, cx)
 	end
 end)
 
--- 3. Sidebar layout -----------------------------------------------------------------------------
--- What better-sessions.css is styled for: the vertical session list and the tab widgets first in the
--- widget bar. Other widgets stay, after them; whether the list auto-hides (`tabs_autohide`) stays the
--- user's choice. Applied once when the plugin first loads (kv `layout_applied`), and again whenever
--- the command runs.
+-- 3. Sidebar ------------------------------------------------------------------------------------
+-- The vertical session list is Tern's own `#sidebar`; plugins can style it but not add to it, so its
+-- controls live in the widget bar: `better-sessions/sidebar` shows and hides it (Tern's
+-- `tabs_autohide`), and palette commands set its width (Tern's `--vt-w`, which the panes' offset
+-- follows too).
 
+-- Layout: what better-sessions.css is styled for. The sidebar button and the tab widgets go first in
+-- the widget bar; other widgets stay, after them. Applied once when the plugin first loads (kv
+-- `layout_applied`), and again whenever the command runs.
 local function apply_layout(cx: any): (boolean, string?)
-	local widgets = {}
+	local widgets = { { id = PLUGIN .. "/sidebar" } }
 	for i = 1, MAX_TABS do
 		table.insert(widgets, { id = PLUGIN .. "/tab-" .. i })
 	end
@@ -263,6 +271,106 @@ local function apply_layout(cx: any): (boolean, string?)
 	end
 	return ok, if ok then nil else tostring(err)
 end
+
+-- Show/hide button. `render` gets no cx, so `autohide` caches the setting; the refresh loop
+-- (`on_tick`) catches changes made elsewhere (Settings, settings.json).
+local autohide = false
+
+local function sync_autohide(cx: any)
+	local now = cx.settings:get("tabs_autohide") == true
+	if now ~= autohide then
+		autohide = now
+		tern.chrome.refresh()
+	end
+end
+
+tern.command({
+	id = "toggle_sidebar",
+	title = "Show or hide sidebar (toggle auto-hide)",
+	run = function(cx)
+		cx.settings:set("tabs_autohide", not (cx.settings:get("tabs_autohide") == true))
+		sync_autohide(cx)
+	end,
+})
+
+tern.chrome.widget("sidebar", {
+	name = "Sidebar button",
+	description = "Keeps the session sidebar visible, or hides it until the pointer rests at the window's left edge",
+	icon = "sidebar",
+	render = function(_pane)
+		return {
+			text = "",
+			tone = if autohide then "muted" else "accent",
+			title = if autohide then "Keep the sidebar visible" else "Hide the sidebar until hovered",
+			command = "plugin." .. PLUGIN .. ".toggle_sidebar",
+		}
+	end,
+})
+
+table.insert(on_tick, sync_autohide)
+
+-- Width: kv `sidebar_width` (px), nil for Tern's default. `html:root` outranks Tern's `:root` rule.
+local DEFAULT_WIDTH = 236 -- Tern's own --vt-w
+local MIN_WIDTH, MAX_WIDTH, WIDTH_STEP = 160, 480, 24
+
+local function apply_width(width: number?)
+	tern.css("sidebar-width", if width then string.format("html:root { --vt-w: %dpx; }", width) else "")
+end
+
+local function set_width(cx: any, width: number?)
+	if width then
+		width = math.clamp(math.floor(width + 0.5), MIN_WIDTH, MAX_WIDTH)
+	end
+	tern.kv.set("sidebar_width", width)
+	apply_width(width)
+	cx:toast("info", "Sidebar width " .. (if width then width .. "px" else "back to default"))
+end
+
+apply_width(tern.kv.get("sidebar_width"))
+
+tern.command({
+	id = "widen_sidebar",
+	title = "Widen sidebar",
+	run = function(cx)
+		set_width(cx, (tern.kv.get("sidebar_width") or DEFAULT_WIDTH) + WIDTH_STEP)
+	end,
+})
+
+tern.command({
+	id = "narrow_sidebar",
+	title = "Narrow sidebar",
+	run = function(cx)
+		set_width(cx, (tern.kv.get("sidebar_width") or DEFAULT_WIDTH) - WIDTH_STEP)
+	end,
+})
+
+tern.command({
+	id = "set_sidebar_width",
+	title = "Set sidebar width…",
+	run = function(cx)
+		local current = tern.kv.get("sidebar_width")
+		cx:prompt({
+			value = if current then tostring(current) else "",
+			placeholder = string.format("Width in px, %d–%d (empty: Tern's default, %d)", MIN_WIDTH, MAX_WIDTH, DEFAULT_WIDTH),
+			action = "set width",
+		}):next(function(text, _err, cx2)
+			if text == nil or not cx2 then
+				return
+			end
+			local trimmed = string.match(text, "^%s*(.-)%s*p?x?%s*$") or ""
+			if trimmed == "" then
+				set_width(cx2, nil)
+				return
+			end
+			local width = tonumber(trimmed)
+			if not width then
+				cx2:toast("error", "Not a width", text)
+				return
+			end
+			set_width(cx2, width)
+		end)
+	end,
+})
 
 tern.command({
 	id = "apply_layout",
