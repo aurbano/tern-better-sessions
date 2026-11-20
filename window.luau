@@ -240,9 +240,10 @@ tern.on("session_ended", function(ev: any, cx)
 end)
 
 -- 3. Sidebar layout -----------------------------------------------------------------------------
--- What better-sessions.css is styled for: the vertical session list (hidden until hovered) and the
--- tab widgets first in the widget bar. Other widgets stay, after them. Applied once when the plugin
--- first loads (kv `layout_applied`), and again whenever the command runs.
+-- What better-sessions.css is styled for: the vertical session list and the tab widgets first in the
+-- widget bar. Other widgets stay, after them; whether the list auto-hides (`tabs_autohide`) stays the
+-- user's choice. Applied once when the plugin first loads (kv `layout_applied`), and again whenever
+-- the command runs.
 
 local function apply_layout(cx: any): (boolean, string?)
 	local widgets = {}
@@ -255,7 +256,7 @@ local function apply_layout(cx: any): (boolean, string?)
 		end
 	end
 	local ok, err = pcall(function()
-		cx.settings:set_many({ tabs = "Vertical", tabs_autohide = true, widgets = tern.json.array(widgets) })
+		cx.settings:set_many({ tabs = "Vertical", widgets = tern.json.array(widgets) })
 	end)
 	if ok then
 		tern.kv.set("layout_applied", true)

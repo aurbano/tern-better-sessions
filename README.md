@@ -2,7 +2,7 @@
 
 A [Tern](https://stencil.so) plugin that makes sessions the way you organise work:
 
-- **Left sidebar**: sessions listed vertically down the left side, hidden until you hover.
+- **Left sidebar**: sessions listed vertically down the left side.
 - **Top tab bar**: the current session's tabs in Tern's top bar, beside the New tab (+) button. Click a tab to switch to it.
 - **Session roots**: give a session a folder, and every new tab, agent block and shell block you open in it starts there. Splits (⌘D) still start in the focused block's folder.
 
@@ -18,7 +18,7 @@ Or, to work on it from a checkout:
 tern plugin link ~/dev/better-sessions
 ```
 
-The first time it loads, the plugin switches tabs to vertical with auto-hide and puts its tab widgets first in the widget bar. It keeps your other widgets.
+The first time it loads, the plugin switches tabs to vertical and puts its tab widgets first in the widget bar. It keeps your other widgets, and leaves Tern's sidebar auto-hide setting as you have it.
 
 ## Commands
 
