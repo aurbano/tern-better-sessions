@@ -11,10 +11,10 @@ Tested with Tern 0.9.26 on macOS.
 ## Install
 
 ```sh
-tern plugin install github.com/aurbano/better-sessions
+tern plugin install github.com/aurbano/tern-better-sessions
 ```
 
-Or paste `github.com/aurbano/better-sessions` into the install field in Tern's plugin settings.
+Or paste `github.com/aurbano/tern-better-sessions` into the install field in Tern's plugin settings.
 
 The first time it loads, the plugin switches tabs to vertical and puts the sidebar button and its tab widgets first in the widget bar. It keeps your other widgets, and leaves Tern's sidebar auto-hide setting as you have it.
 
@@ -53,9 +53,9 @@ Limitations:
 ## Development
 
 ```sh
-git clone https://github.com/aurbano/better-sessions
-tern plugin link ./better-sessions
-tern plugin types ./better-sessions
+git clone https://github.com/aurbano/tern-better-sessions
+tern plugin link ./tern-better-sessions
+tern plugin types ./tern-better-sessions
 ```
 
 `tern plugin link` uses the checkout in place, and Tern reloads the plugin whenever a file in it changes. `tern plugin types` writes `tern.d.luau` (gitignored) for luau-lsp.
